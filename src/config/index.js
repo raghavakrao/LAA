@@ -1,3 +1,4 @@
+require("dotenv").config();
 let config = {
     redis: {
         host: process.env.REDIS_HOST,
@@ -15,16 +16,16 @@ let config = {
         logging : false,
         replication: {
             read: [{
-                host: process.env.RDS_RO_HOST,
-                username: process.env.RDS_RO_USERNAME,
-                password: process.env.RDS_RO_PASSWORD,
-                database: process.env.RDS_DATABASE
+                host: process.env.DB_HOST,
+                username: process.env.DB_USER,
+                password: process.env.DB_PASSWORD,
+                database: process.env.DB_NAME
             }],
             write: {
-                host: process.env.RDS_RW_HOST,
-                username: process.env.RDS_RW_USERNAME,
-                password: process.env.RDS_RW_PASSWORD,
-                database: process.env.RDS_DATABASE
+                host: process.env.DB_HOST,
+                username: process.env.DB_USER,
+                password: process.env.DB_PASSWORD,
+                database: process.env.DB_NAME
             }
         },
         dialectOptions: {
@@ -34,6 +35,13 @@ let config = {
             maxConnections: process.env.RDS_MAX_CONNECTIONS,
             maxIdleTime: 2000
         },
+    },
+    development: {
+        host: process.env.DB_HOST,
+        username: process.env.DB_USER,
+        password: process.env.DB_PASSWORD,
+        database: process.env.DB_NAME,
+        dialect : 'mysql'
     }
 };
 

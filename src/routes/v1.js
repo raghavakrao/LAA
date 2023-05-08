@@ -4,6 +4,6 @@ const {createConsentRequest, consentRequestHandler} = require('../controller/v1/
 const {auth} = require('../middleware')
 // router.get('/notification/:id', extractJwtToken, require('../alerts/getNotification'));
 router.post('/create-consent-request', auth, createConsentRequest);
-router.get('/create-consent-handler', auth, consentRequestHandler);
+// router.get('/create-consent-handler', auth, consentRequestHandler);
 
 module.exports = router;
