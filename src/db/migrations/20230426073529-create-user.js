@@ -18,6 +18,12 @@ module.exports = {
       mobile: {
         type: Sequelize.STRING(10)
       },
+      token: {
+        type: Sequelize.TEXT
+      },
+      custId: {
+        type: Sequelize.STRING
+      },
       encryptedRequest: {
         type: Sequelize.STRING
       },
@@ -26,6 +32,18 @@ module.exports = {
       },
       encryptedFiuId: {
         type: Sequelize.STRING
+      },
+      consentHandleId: {
+        type: Sequelize.STRING
+      },
+      consentId: {
+        type: Sequelize.STRING
+      },
+      sessionId: {
+        type: Sequelize.STRING
+      },
+      data: {
+        type: Sequelize.TEXT
       },
       createdAt: {
         allowNull: false,

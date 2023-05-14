@@ -25,6 +25,12 @@ module.exports = (sequelize, DataTypes) => {
     encryptedRequest: DataTypes.STRING,
     requestDate: DataTypes.STRING,
     encryptedFiuId: DataTypes.STRING,
+    consentHandleId: DataTypes.STRING,
+    custId: DataTypes.STRING,
+    token: DataTypes.TEXT,
+    consentId: DataTypes.STRING,
+    sessionId: DataTypes.STRING,
+    data: DataTypes.TEXT
   }, {
     sequelize,
     modelName: 'User',

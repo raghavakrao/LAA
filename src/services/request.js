@@ -6,7 +6,7 @@ async function callAPI({url, method, data, header = {}, headers = {}}) {
         const head = {
             rid: uuid.v4(),
             ts: new Date().toISOString(),
-            channelId: "finsense",
+            channelId: "netbanking",
             ...header
         };
         const bodyData = {

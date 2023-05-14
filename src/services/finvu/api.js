@@ -16,8 +16,7 @@ async function getToken() {
     return (response && response.body)?response.body.token:response;
 }
 
-async function requestConsent(consentsData) {
-    let token = await getToken();
+async function requestConsent(consentsData, token) {
     let params = {
         url:  `${config.finvu.baseUrl}/ConsentRequestEncrypt`,
         method: "POST",
@@ -28,6 +27,7 @@ async function requestConsent(consentsData) {
             custId: consentsData.mobile + "@finvu",
             consentDescription: "For one time statement",
             templateName: "BANK_STATEMENT_ONETIME",
+            // templateName: "FINVUDEMO_TESTING",
             userSessionId: 'userSessionId123'
         },
     };
@@ -37,7 +37,70 @@ async function requestConsent(consentsData) {
 
 }
 
+async function consentStatus(user) {
+    let params = {
+        url:  `${config.finvu.baseUrl}/ConsentStatus/${user.consentHandleId}/${user.custId}`,
+        method: "GET",
+        headers: {
+            'Authorization': 'Bearer: ' + user.token
+        }
+    };
+
+    let response = await callAPI(params);
+    return (response)?response:response;
+
+}
+
+
+async function FIRequest(user) {
+
+    let params = {
+        url:  `${config.finvu.baseUrl}/FIRequest`,
+        method: "POST",
+        headers: {
+            'Authorization': 'Bearer: ' + user.token
+        },
+        data: {
+            custId: user.custId,
+            consentId: user.consentId,
+            consentHandleId: user.consentHandleId,
+            dateTimeRangeFrom: "2022-05-15T08:10:45.006+0000",//new Date(new Date().setFullYear(new Date().getFullYear() - 1)).toISOString(),
+            dateTimeRangeTo: "2023-05-13T08:10:45.006+0000"//new Date().toISOString()
+        },
+    };
+    let response = await callAPI(params);
+    return (response)?response:response;
+}
+
+async function checkFIStatus(user) {
+    let params = {
+        url:  `${config.finvu.baseUrl}/FIStatus/${user.consentId}/${user.sessionId}/${user.consentHandleId}/${user.custId}`,
+        method: "GET",
+        headers: {
+            'Authorization': 'Bearer: ' + user.token
+        }
+    };
+    let response = await callAPI(params);
+    return (response)?response:response;
+}
+
+async function fetchFI(user) {
+    let params = {
+        url:  `${config.finvu.baseUrl}/FIFetch/${user.custId}/${user.consentId}/${user.sessionId}`,
+        method: "GET",
+        headers: {
+            'Authorization': 'Bearer: ' + user.token
+        }
+    };
+    let response = await callAPI(params);
+    return (response)?response:response;
+}
+
 module.exports = {
     getToken,
-    requestConsent
+    requestConsent,
+    consentStatus,
+    FIRequest,
+    checkFIStatus,
+    fetchFI
 }

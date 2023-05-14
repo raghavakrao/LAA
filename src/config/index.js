@@ -6,7 +6,7 @@ let config = {
     },
     jwt:{
         expiryTime: (process.env.JWT_EXPIRY_TIME)?process.env.JWT_EXPIRY_TIME:0, //Eg - "10h" or "20d" or "120s"
-        secretKey: "test"
+        secretKey: "testakjljfgnjnbags4354sdfabk"
     },
     finvu: {
         baseUrl: "https://loantap.fiulive.finfactor.co.in/finsense/API/V1",

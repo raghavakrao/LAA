@@ -1,45 +1,29 @@
 const Joi = require('@hapi/joi');
-const {requestConsent} = require('../../services/finvu/api');
+const {getToken, requestConsent, consentStatus, checkFIStatus, FIRequest, fetchFI} = require('../../services/finvu/api');
 const { User } = require('../../db/models');
-
-function validateRequest(request) {
-    const schema = Joi.object().keys({
-        request: Joi.object({
-            body: Joi.object({
-                mobile: Joi.string().regex(/^[0-9]{10}$/).messages({'string.pattern.base': `Phone number must have 10 digits.`}).required()
-            }).required().messages({
-                'any.required': 'Invalid request, missing body'
-            })
-        })
-    });
-
-    return schema.validate({ request }, { allowUnknown: true });
-}
 
 async function createConsentRequest(req, res){
     let outputText = "<h1>ERROR</h1>";
-    let { error, value} = validateRequest(req);
-    if (!error) {
-        const [user, created] = await User.findOrCreate({
-            where: { mobile: req.body.mobile },
-          });
-        if(user.encryptedRequest && user.requestDate && user.encryptedFiuId){
-            outputText = await loadFinvuPopup(user);
-        }else{
-            let finvuConsentData = await requestConsent({ mobile: req.body.mobile });
-            if(finvuConsentData && finvuConsentData.body){
-                user.encryptedRequest = finvuConsentData.body.encryptedRequest;
-                user.requestDate = finvuConsentData.body.requestDate;
-                user.encryptedFiuId = finvuConsentData.body.encryptedFiuId;
-                if(await user.save()){
-                    outputText = await loadFinvuPopup(user);
-                }
+    const [user, created] = await User.findOrCreate({
+        where: { mobile: req.mobile },
+        });
+    if(user.encryptedRequest && user.requestDate && user.encryptedFiuId){
+        outputText = await loadFinvuPopup(user);
+    }else{
+        let token = await getToken();
+        let finvuConsentData = await requestConsent({ mobile: req.mobile }, token);
+        if(finvuConsentData && finvuConsentData.body){
+            user.token = token;
+            user.custId = req.mobile+"@finvu";
+            user.encryptedRequest = finvuConsentData.body.encryptedRequest;
+            user.requestDate = finvuConsentData.body.requestDate;
+            user.encryptedFiuId = finvuConsentData.body.encryptedFiuId;
+            user.consentHandleId = finvuConsentData.body.ConsentHandle;
+            if(await user.save()){
+                outputText = await loadFinvuPopup(user);
             }
         }
-    }else{
-        outputText = `<h1>${error.details[0].message}</h1>`;
     }
-    
     return res.send(outputText);
 }
 
@@ -67,7 +51,84 @@ async function loadFinvuPopup(user){
     return outputText;
 }
 
+async function checkConsentStatus(req, res){
+    const user = await User.findOne({
+        where: { mobile: req.mobile },
+      });
+    if (user) {
+        let consentData = await consentStatus(user);
+        if(consentData && consentData.body && consentData.body.consentStatus === "ACCEPTED"){
+            user.consentId = consentData.body.consentId;
+            if(await user.save()){
+                return res.send({data:{status:"success"},success:true});
+            }
+        }else{
+            return res.send({data:{status:"pending"},success:true});
+        }
+    }else{
+        return res.status(404).send({message:"User not found.", success:false});
+    }
+}
+
+
+async function triggerDataRequest(req, res){
+    const user = await User.findOne({
+        where: { mobile: req.mobile },
+      });
+    if (user) {
+        let consentData = await FIRequest(user);
+        if(consentData && consentData.body && consentData.body.sessionId){
+            user.sessionId = consentData.body.sessionId;
+            if(await user.save()){
+                return res.send({data:{status:"success"},success:true});
+            }
+        }else{
+            return res.send({data:{status:"pending"},success:true});
+        }
+    }else{
+        return res.status(404).send({message:"User not found.", success:false});
+    }
+}
+
+async function checkDataRequestStatus(req, res){
+    const user = await User.findOne({
+        where: { mobile: req.mobile },
+      });
+    if (user) {
+        let consentData = await checkFIStatus(user);
+        if(consentData && consentData.body && consentData.body.fiRequestStatus === "READY"){
+            return res.send({data:{status:"success"},message:"Data is ready now.",success:true});
+        }else{
+            return res.send({data:{status:"pending"},success:true});
+        }
+    }else{
+        return res.status(404).send({message:"User not found.", success:false});
+    }
+}
+
+async function fetchData(req, res){
+    const user = await User.findOne({
+        where: { mobile: req.mobile },
+      });
+    if (user) {
+        let consentData = await fetchFI(user);
+        if(consentData && consentData.body){
+            user.data = JSON.stringify(consentData.body);
+            if(await user.save()){
+                return res.send({data:{status:"success"},success:true});
+            }
+        }else{
+            return res.send({data:{status:"pending"},success:true});
+        }
+    }else{
+        return res.status(404).send({message:"User not found.", success:false});
+    }
+}
+
 module.exports = {
     createConsentRequest,
-    consentRequestHandler
+    checkConsentStatus,
+    triggerDataRequest,
+    checkDataRequestStatus,
+    fetchData
 }
