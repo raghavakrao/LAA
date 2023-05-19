@@ -64,8 +64,8 @@ async function FIRequest(user) {
             custId: user.custId,
             consentId: user.consentId,
             consentHandleId: user.consentHandleId,
-            dateTimeRangeFrom: "2022-05-15T08:10:45.006+0000",//new Date(new Date().setFullYear(new Date().getFullYear() - 1)).toISOString(),
-            dateTimeRangeTo: "2023-05-13T08:10:45.006+0000"//new Date().toISOString()
+            dateTimeRangeFrom: new Date(new Date().setFullYear(new Date().getFullYear() - 1)).toISOString(),
+            dateTimeRangeTo: new Date(new Date().setDate(new Date().getDate() - 2)).toISOString()
         },
     };
     let response = await callAPI(params);

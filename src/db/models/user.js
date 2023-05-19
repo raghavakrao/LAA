@@ -30,7 +30,7 @@ module.exports = (sequelize, DataTypes) => {
     token: DataTypes.TEXT,
     consentId: DataTypes.STRING,
     sessionId: DataTypes.STRING,
-    data: DataTypes.TEXT
+    data: DataTypes.JSON
   }, {
     sequelize,
     modelName: 'User',

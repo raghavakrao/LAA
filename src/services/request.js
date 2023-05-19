@@ -23,7 +23,7 @@ async function callAPI({url, method, data, header = {}, headers = {}}) {
             },
             data: bodyData,
             json: true,
-            timeout: 10000
+            timeout: 100000
         }
         const response = await axios(config);
         return response.data;

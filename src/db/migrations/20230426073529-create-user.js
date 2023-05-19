@@ -43,7 +43,7 @@ module.exports = {
         type: Sequelize.STRING
       },
       data: {
-        type: Sequelize.TEXT
+        type: Sequelize.JSON
       },
       createdAt: {
         allowNull: false,
